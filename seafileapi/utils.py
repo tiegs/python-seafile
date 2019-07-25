@@ -47,6 +47,6 @@ def utf8lize(obj):
         return {k: to_utf8(v) for k, v in obj.items()}
 
     if isinstance(obj, list):
-        return [to_utf8(x) for x in ob]
+        return [to_utf8(x) for x in obj]
 
     return obj
