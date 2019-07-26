@@ -1,6 +1,6 @@
 import requests
 import re
-from seafileapi.utils import urljoin
+from seafileapi.utils import urljoin, is_ascii
 from seafileapi.exceptions import ClientHttpError
 from seafileapi.repos import Repos
 
@@ -57,10 +57,11 @@ class SeafileApiClient(object):
         def func(prepared_request):
             if 'files' in kwargs:
                 file = kwargs['files'].get('file', None)
-
                 if file and isinstance(file[0], str):
-                    filename = (file[0] + '"\r').encode('utf-8')
-                    prepared_request.body = request_filename_pattern.sub(b'filename="' + filename, prepared_request.body)
+                    filename = file[0]
+                    if not is_ascii(filename):
+                        filename = (filename + '"\r').encode('utf-8')
+                        prepared_request.body = request_filename_pattern.sub(b'filename="' + filename, prepared_request.body, count=1)
 
             return prepared_request
         return func

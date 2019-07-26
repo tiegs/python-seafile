@@ -50,3 +50,10 @@ def utf8lize(obj):
         return [to_utf8(x) for x in obj]
 
     return obj
+
+def is_ascii(text):
+    try:
+        text.encode('ascii')
+    except UnicodeEncodeError:
+        return False
+    return True
