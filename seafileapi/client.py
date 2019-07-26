@@ -1,7 +1,11 @@
 import requests
+import re
 from seafileapi.utils import urljoin
 from seafileapi.exceptions import ClientHttpError
 from seafileapi.repos import Repos
+
+request_filename_pattern = re.compile(b'filename\*=.*')
+
 
 class SeafileApiClient(object):
     """Wraps seafile web api"""
@@ -49,6 +53,18 @@ class SeafileApiClient(object):
     def delete(self, *args, **kwargs):
         return self._send_request('delete', *args, **kwargs)
 
+    def _rewrite_request(self, *args, **kwargs):
+        def func(prepared_request):
+            if 'files' in kwargs:
+                file = kwargs['files'].get('file', None)
+
+                if file and isinstance(file[0], str):
+                    filename = (file[0] + '"\r').encode('utf-8')
+                    prepared_request.body = request_filename_pattern.sub(b'filename="' + filename, prepared_request.body)
+
+            return prepared_request
+        return func
+
     def _send_request(self, method, url, *args, **kwargs):
         if not url.startswith('http'):
             url = urljoin(self.server, url)
@@ -60,7 +76,10 @@ class SeafileApiClient(object):
         expected = kwargs.pop('expected', 200)
         if not hasattr(expected, '__iter__'):
             expected = (expected, )
+
+        kwargs['auth'] = self._rewrite_request(*args, **kwargs)  # hack to rewrite post body
         resp = requests.request(method, url, *args, **kwargs)
+
         if resp.status_code not in expected:
             msg = 'Expected %s, but get %s' % \
                   (' or '.join(map(str, expected)), resp.status_code)
