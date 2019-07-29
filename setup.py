@@ -1,15 +1,15 @@
 from setuptools import setup, find_packages
 
-__version__ = '0.1.1'
+__version__ = '0.1.0'
 
 
-setup(name='seafileapi',
+setup(name='python-seafile-api',
       version=__version__,
       license='BSD',
       description='Client interface for Seafile Web API',
-      author='Shuai Lin',
-      author_email='linshuai2012@gmail.com',
-      url='http://seafile.com',
+      author='Igor Rumyantsev',
+      author_email='igorrum@mail.ru',
+      url='https://github.com/Widly/python-seafile',
       platforms=['Any'],
       packages=find_packages(),
       install_requires=['requests'],
