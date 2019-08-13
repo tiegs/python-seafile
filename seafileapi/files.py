@@ -101,8 +101,28 @@ class _SeafDirentBase(object):
                 self.__dict__[key] = new_dirent.__dict__[key]
         return succeeded
 
-    def get_share_link(self):
-        pass
+    def get_share_link(self, can_edit=False, can_download=True, password=None, expire_days=None, direct_link=True):
+        url = '/api/v2.1/share-links'
+        post_data = {
+            "repo_id": self.repo.id,
+            "path": self.path,
+            "permissions": {
+                "can_edit": can_edit,
+                "can_download": can_download
+            }
+        }
+        if password:
+            post_data['password'] = password
+        if expire_days:
+            post_data['expire_days'] = expire_days
+
+        resp = self.client.post(url, data=post_data)
+        link = resp.json()['link']
+        if direct_link:
+            link = link + '?dl=1'
+
+        return link
+
 
 class SeafDir(_SeafDirentBase):
     isdir = True
