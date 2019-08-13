@@ -102,7 +102,7 @@ class _SeafDirentBase(object):
         return succeeded
 
     def get_share_link(self, can_edit=False, can_download=True, password=None, expire_days=None, direct_link=True):
-        url = '/api/v2.1/share-links'
+        url = '/api/v2.1/share-links/'
         post_data = {
             "repo_id": self.repo.id,
             "path": self.path,
