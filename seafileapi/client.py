@@ -9,13 +9,14 @@ request_filename_pattern = re.compile(b'filename\*=.*')
 
 class SeafileApiClient(object):
     """Wraps seafile web api"""
-    def __init__(self, server, username=None, password=None, token=None):
+    def __init__(self, server, username=None, password=None, token=None, verify_ssl=True):
         """Wraps various basic operations to interact with seahub http api.
         """
         self.server = server
         self.username = username
         self.password = password
         self._token = token
+        self.verify_ssl = verify_ssl
 
         self.repos = Repos(self)
         self.groups = Groups(self)
@@ -29,7 +30,7 @@ class SeafileApiClient(object):
             'password': self.password,
         }
         url = urljoin(self.server, '/api2/auth-token/')
-        res = requests.post(url, data=data)
+        res = requests.post(url, data=data, verify=self.verify_ssl)
         if res.status_code != 200:
             raise ClientHttpError(res.status_code, res.content)
         token = res.json()['token']
@@ -79,7 +80,7 @@ class SeafileApiClient(object):
             expected = (expected, )
 
         kwargs['auth'] = self._rewrite_request(*args, **kwargs)  # hack to rewrite post body
-        resp = requests.request(method, url, *args, **kwargs)
+        resp = requests.request(method, url, *args, verify=self.verify_ssl, **kwargs)
 
         if resp.status_code not in expected:
             msg = 'Expected %s, but get %s' % \
