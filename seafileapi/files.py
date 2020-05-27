@@ -178,7 +178,7 @@ class SeafDir(_SeafDirentBase):
         self.load_entries(resp.json())
         return SeafDir(self.repo, path, ZERO_OBJ_ID)
 
-    def upload(self, fileobj, filename):
+    def upload(self, fileobj, filename, replace=False):
         """Upload a file to this folder.
 
         :param:fileobj :class:`File` like object
@@ -192,11 +192,12 @@ class SeafDir(_SeafDirentBase):
         files = {
             'file': (filename, fileobj),
             'parent_dir': self.path,
+            'replace': 1 if replace else 0,
         }
         self.client.post(upload_url, files=files)
         return self.repo.get_file(posixpath.join(self.path, filename))
 
-    def upload_local_file(self, filepath, name=None):
+    def upload_local_file(self, filepath, name=None, replace=False):
         """Upload a file to this folder.
 
         :param:filepath The path to the local file
@@ -206,7 +207,7 @@ class SeafDir(_SeafDirentBase):
         """
         name = name or os.path.basename(filepath)
         with open(filepath, 'r') as fp:
-            return self.upload(fp, name)
+            return self.upload(fp, name, replace)
 
     def _get_upload_link(self):
         url = '/api2/repos/%s/upload-link/' % self.repo.id
