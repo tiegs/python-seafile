@@ -101,6 +101,26 @@ class _SeafDirentBase(object):
                 self.__dict__[key] = new_dirent.__dict__[key]
         return succeeded
 
+    def find_share_link(self, direct_link=True):
+        """Seafile refuses to create multiple share links for the same file
+        This method checks whether there already is a share link and returns it
+        """
+        url = '/api/v2.1/share-links/' + querystr(repo_id=self.repo.id, path=self.path, )
+
+        resp = self.client.get(url)
+        result = resp.json()
+
+        if len(result) == 0:
+            return None
+
+        elif len(result) == 1:
+            link = result[0]['link']
+            return link + '?dl=1' if direct_link else link
+
+        else:
+            # Make sure only one link is received
+            raise OperationError("More then one share link received (this is unexpected for a file/folder)")
+
     def get_share_link(self, can_edit=False, can_download=True, password=None, expire_days=None, direct_link=True):
         url = '/api/v2.1/share-links/'
         post_data = {
