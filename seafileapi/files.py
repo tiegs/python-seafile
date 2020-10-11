@@ -116,7 +116,7 @@ class _SeafDirentBase(object):
         if expire_days:
             post_data['expire_days'] = expire_days
 
-        resp = self.client.post(url, data=post_data)
+        resp = self.client.post(url, json=post_data)
         link = resp.json()['link']
         if direct_link:
             link = link + '?dl=1'
